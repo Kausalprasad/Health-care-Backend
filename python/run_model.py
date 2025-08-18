@@ -17,7 +17,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "models", "anemia_nail")
 from predict import predict as anemia_predict  # ✅
 
 # Optional: Tesseract path (Windows)
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # Load .env
 load_dotenv()

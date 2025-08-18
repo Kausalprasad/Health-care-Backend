@@ -9,12 +9,11 @@ uploads/
 firebase-service-account.json
 
 # Python cache
-*.pyc
-__pycache__/
+
 
 # Ignore large AI models
 python/models/tongue_disease/*.keras
 python/models/anemia_nail/*.tflite
 *.keras
 *.tflite
-python/models/
+
