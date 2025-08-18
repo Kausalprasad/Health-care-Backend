@@ -1,0 +1,13 @@
+pytesseract
+pdfplumber
+pillow
+pymupdf
+langchain-groq
+langchain-core
+python-dotenv
+tensorflow
+
+# Naye prescription_reader model ke liye
+pdf2image
+opencv-python
+google-generativeai

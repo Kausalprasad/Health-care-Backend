@@ -1,0 +1,2 @@
+python/models/tongue_disease/*.keras filter=lfs diff=lfs merge=lfs -text
+python/models/anemia_nail/*.tflite filter=lfs diff=lfs merge=lfs -text
