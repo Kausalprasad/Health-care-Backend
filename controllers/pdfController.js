@@ -1,4 +1,4 @@
-// const FileModel = require("../models/pdf")
+const FileModel = require("../models/Pdf.js")
 const fs = require("fs");
 
 // 📤 Upload PDF
