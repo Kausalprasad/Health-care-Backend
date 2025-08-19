@@ -1,15 +1,38 @@
 const { spawn } = require("child_process");
 const path = require("path");
+const FileModel = require("../models/pdf"); // 👈 yeh add karna bhool gaya tha
 
+// 📌 Upload PDF to MongoDB
+exports.uploadPdf = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // Save file info in MongoDB
+    const file = new FileModel({
+      userId: req.body.userId || "guest", // ya jo bhi user auth logic hai
+      fileName: req.file.originalname,
+      filePath: req.file.path,
+    });
+
+    await file.save();
+
+    res.json({ message: "PDF uploaded successfully", file });
+  } catch (err) {
+    console.error("❌ Upload PDF Error:", err);
+    res.status(500).json({ error: "Failed to upload PDF", details: err.message });
+  }
+};
+
+// 📌 Process PDF with Python Model
 exports.processFile = (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded" });
   }
 
   const pythonScript = path.join(__dirname, "../python/run_model.py");
-
-  // ✅ Model name pass karo
-  const modelName = "pdf_summary"; // route ke hisaab se "anemia_nail" bhi ho sakta hai
+  const modelName = "pdf_summary"; // or "anemia_nail" based on route
 
   // ✅ Cross-platform Python path
   const pythonPath =
@@ -43,7 +66,6 @@ exports.processFile = (req, res) => {
       const parsed = JSON.parse(result);
       res.json({ message: "AI model processed successfully", output: parsed });
     } catch (err) {
-      // Not JSON? Just return raw
       res.json({ message: "AI model processed successfully", output: result });
     }
   });
