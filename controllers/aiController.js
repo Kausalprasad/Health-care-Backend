@@ -8,13 +8,17 @@ exports.processFile = (req, res) => {
 
   const pythonScript = path.join(__dirname, "../python/run_model.py");
 
-  // ✅ Pass the model name as FIRST argument
-  const modelName = "pdf_summary"; // or "anemia_nail" depending on the route
+  // ✅ Model name pass karo
+  const modelName = "pdf_summary"; // route ke hisaab se "anemia_nail" bhi ho sakta hai
 
-  const pyProcess = spawn(
-    "C:\\Users\\Kaushal\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
-    [pythonScript, modelName, req.file.path]
-  );
+  // ✅ Cross-platform Python path
+  const pythonPath =
+    process.env.PYTHON_PATH ||
+    (process.platform === "win32"
+      ? "C:\\Users\\Kaushal\\AppData\\Local\\Programs\\Python\\Python313\\python.exe"
+      : "python3");
+
+  const pyProcess = spawn(pythonPath, [pythonScript, modelName, req.file.path]);
 
   let result = "";
   let errorOutput = "";
