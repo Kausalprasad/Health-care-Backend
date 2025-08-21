@@ -31,6 +31,7 @@ if __name__ == "__main__":
     MODELS = {
         "models/nail_model.tflite": "python/models/anemia_nail/nail_model.tflite",
         "models/tongue_disease_model.keras": "python/models/tongue_disease/tongue_disease_model.keras",
+        "models/eye_Model.keras": "python/models/eye/eye_Model.keras",
     }
 
     for s3_key, local_path in MODELS.items():

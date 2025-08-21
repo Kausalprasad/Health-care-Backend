@@ -11,6 +11,7 @@ const aiDoctorRoutes = require("./routes/aiDoctor.routes");
 const tongueDiseaseRoutes = require("./routes/tongueDiseaseRoutes");
 const chatRoutes = require('./routes/chatRoutes');
 const prescriptionRoutes = require("./routes/prescriptionroutes");
+const eyeRoutes = require("./routes/eyepredictRoutes");
 const { execSync } = require("child_process");
 
 
@@ -35,6 +36,9 @@ app.use("/api/ai-doctor", aiDoctorRoutes);
 app.use("/api", tongueDiseaseRoutes);
 app.use('/api', chatRoutes);
 app.use("/api/prescription", prescriptionRoutes);
+app.use("/api/predict", eyeRoutes);
+
+
 console.log("⬇️ Checking & downloading models from S3...");
 try {
   execSync("python python/download_models.py", { stdio: "inherit" });
@@ -59,4 +63,7 @@ app.get("/api/files", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, "127.0.0.1", () =>  console.log(`🚀 Server running on port ${PORT}`));
+// app.listen(PORT, "127.0.0.1", () =>  console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => 
+  console.log(`🚀 Server running on port ${PORT}`)
+);
