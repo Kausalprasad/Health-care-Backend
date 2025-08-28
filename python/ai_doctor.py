@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from typing import List
 from pydantic import BaseModel
 from langchain_groq import ChatGroq

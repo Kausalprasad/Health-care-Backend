@@ -12,6 +12,8 @@ const tongueDiseaseRoutes = require("./routes/tongueDiseaseRoutes");
 const chatRoutes = require('./routes/chatRoutes');
 const prescriptionRoutes = require("./routes/prescriptionroutes");
 const eyeRoutes = require("./routes/eyepredictRoutes");
+const skinRoutes = require('./routes/skinRoutes'); 
+
 const { execSync } = require("child_process");
 
 
@@ -23,6 +25,7 @@ connectDB();
 const app = express();
 app.use(cors());
 app.use(express.json());
+
 
 // Routes
 app.use("/api/health", require("./routes/healthRoutes"));
@@ -37,7 +40,8 @@ app.use("/api", tongueDiseaseRoutes);
 app.use('/api', chatRoutes);
 app.use("/api/prescription", prescriptionRoutes);
 app.use("/api/predict", eyeRoutes);
-
+app.use(express.json({ limit: "10mb" }));
+app.use("/api/skin", skinRoutes);
 
 console.log("⬇️ Checking & downloading models from S3...");
 try {
@@ -46,6 +50,10 @@ try {
 } catch (error) {
   console.error("❌ Error while downloading models:", error.message);
 }
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ success: false, message: "Server Error", error: err.message });
+});
 
 // 📂 Get all PDFs for a specific user by email
 app.get("/api/files", async (req, res) => {
@@ -61,6 +69,7 @@ app.get("/api/files", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 const PORT = process.env.PORT || 5000;
 // app.listen(PORT, "127.0.0.1", () =>  console.log(`🚀 Server running on port ${PORT}`));

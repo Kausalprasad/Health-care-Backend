@@ -31,10 +31,19 @@ def predict_eye(img_path):
     predicted_class = class_labels[max_index]
     confidence = float(result[max_index]) * 100  # percentage
 
-    return {
-        "predicted_class": predicted_class,
-        "confidence": round(confidence, 2)  # keep only 2 decimals
-    }
+    # ✅ Threshold check
+    if confidence < 50:
+        return {
+            "predicted_class": "Normal",
+            "confidence": round(confidence, 2),
+            "description": "Your eye appears healthy with no visible abnormalities detected."
+        }
+    else:
+        return {
+            "predicted_class": predicted_class,
+            "confidence": round(confidence, 2),
+            "description": f"{predicted_class} detected with {round(confidence,2)}% confidence."
+        }
 
 # CLI execution
 if __name__ == "__main__":
