@@ -13,6 +13,14 @@ const chatRoutes = require('./routes/chatRoutes');
 const prescriptionRoutes = require("./routes/prescriptionroutes");
 const eyeRoutes = require("./routes/eyepredictRoutes");
 const skinRoutes = require('./routes/skinRoutes'); 
+const cosmeticRoutes = require('./routes/cosmeticRoutes');
+const doctorRoutes = require("./routes/doctorRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
+const melanomaRoutes = require("./routes/melanomaRoutes");
+const mentalHealthRoutes = require("./routes/mentalHealthRoutes");
+const hairRoutes = require("./routes/hairRoutes");
+
+
 
 const { execSync } = require("child_process");
 
@@ -42,6 +50,12 @@ app.use("/api/prescription", prescriptionRoutes);
 app.use("/api/predict", eyeRoutes);
 app.use(express.json({ limit: "10mb" }));
 app.use("/api/skin", skinRoutes);
+app.use("/api/cosmetic", cosmeticRoutes);
+app.use("/api/doctors", doctorRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/melanoma", melanomaRoutes);
+app.use("/api/mental-health", mentalHealthRoutes);
+app.use("/api/hair", hairRoutes);
 
 console.log("⬇️ Checking & downloading models from S3...");
 try {
