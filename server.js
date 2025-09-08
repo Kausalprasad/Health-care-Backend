@@ -16,7 +16,7 @@ const skinRoutes = require('./routes/skinRoutes');
 const cosmeticRoutes = require('./routes/cosmeticRoutes');
 const doctorRoutes = require("./routes/doctorRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
-const melanomaRoutes = require("./routes/melanomaRoutes");
+// const melanomaRoutes = require("./routes/melanomaRoutes");
 const mentalHealthRoutes = require("./routes/mentalHealthRoutes");
 const hairRoutes = require("./routes/hairRoutes");
 
@@ -53,7 +53,7 @@ app.use("/api/skin", skinRoutes);
 app.use("/api/cosmetic", cosmeticRoutes);
 app.use("/api/doctors", doctorRoutes);
 app.use("/api/bookings", bookingRoutes);
-app.use("/api/melanoma", melanomaRoutes);
+// app.use("/api/melanoma", melanomaRoutes);
 app.use("/api/mental-health", mentalHealthRoutes);
 app.use("/api/hair", hairRoutes);
 
