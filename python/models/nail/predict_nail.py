@@ -6,11 +6,13 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 
 # Get the directory of this script (so paths work no matter where Node calls Python from)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Paths
-model_path = os.path.join(BASE_DIR, "nail_Model.tflite")
-labels_path = os.path.join(BASE_DIR, "labels.txt")
+model_path = "python/models/nail/nail_Model.tflite"
+labels_path="python/models/nail/labels.txt"
+# model_path = os.path.join(BASE_DIR, "nail_Model.tflite")
+# labels_path = os.path.join(BASE_DIR, "labels.txt")
 
 # Load labels
 with open(labels_path, "r") as f:
