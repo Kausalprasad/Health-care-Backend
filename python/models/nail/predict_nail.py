@@ -138,5 +138,10 @@ def predict(img_path):
 
 if __name__ == "__main__":
     img_path = sys.argv[1]
-    result = predict(img_path)
-    print(json.dumps(result))
+    try:
+        result = predict(img_path)
+        print(json.dumps(result))   # 👈 only JSON
+    except Exception as e:
+        print("++++++++++++++++++++++++++++++++++++",json.dumps({"error": str(e)})) 
+        print("the error ",e)
+        
