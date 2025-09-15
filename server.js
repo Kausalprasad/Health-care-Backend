@@ -16,9 +16,13 @@ const skinRoutes = require('./routes/skinRoutes');
 const cosmeticRoutes = require('./routes/cosmeticRoutes');
 const doctorRoutes = require("./routes/doctorRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
-// const melanomaRoutes = require("./routes/melanomaRoutes");
+const melanomaRoutes = require("./routes/melanomaRoutes");
 const mentalHealthRoutes = require("./routes/mentalHealthRoutes");
 const hairRoutes = require("./routes/hairRoutes");
+const nailRoutes = require("./routes/nailRoutes");
+const userProfileRoutes=require('./routes/userProfileRoutes')
+const webhookRoutes = require("./routes/webhook");
+const startWatcher = require("./services/watcher");
 
 
 
@@ -53,9 +57,16 @@ app.use("/api/skin", skinRoutes);
 app.use("/api/cosmetic", cosmeticRoutes);
 app.use("/api/doctors", doctorRoutes);
 app.use("/api/bookings", bookingRoutes);
-// app.use("/api/melanoma", melanomaRoutes);
+app.use("/api/malanom", melanomaRoutes);
 app.use("/api/mental-health", mentalHealthRoutes);
 app.use("/api/hair", hairRoutes);
+app.use("/api/nail", nailRoutes);
+app.use('/api',userProfileRoutes);
+app.use("/webhook", webhookRoutes);
+connectDB().then(() => {
+  startWatcher(); // ✅ MongoDB watcher start
+});
+
 
 console.log("⬇️ Checking & downloading models from S3...");
 try {
@@ -83,6 +94,7 @@ app.get("/api/files", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 const PORT = process.env.PORT || 5000;
