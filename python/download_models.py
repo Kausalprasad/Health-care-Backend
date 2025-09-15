@@ -33,6 +33,8 @@ if __name__ == "__main__":
         "models/tongue_disease_model.keras": "python/models/tongue_disease/tongue_disease_model.keras",
         "models/eye_Model.keras": "python/models/eye/eye_Model.keras",
         "models/hair_Model.tflite": "python/models/hair/hair_Model.tflite",
+        "models/nail_Model.tflite": "python/models/nail/nail_Model.tflite",
+        "models/cosmetic_Model.tflite": "python/models/cosmetic/cosmetic_Model.tflite",
     }
 
     for s3_key, local_path in MODELS.items():
