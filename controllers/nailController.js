@@ -7,8 +7,9 @@ exports.predictNail = async (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    const imagePath = path.join(__dirname, "..", "uploads", req.file.filename);
-    const pythonFile = path.join(__dirname, "..", "python", "models", "nail", "predict_nail.py");
+  const imagePath = path.resolve(__dirname, "../uploads", req.file.filename);
+const pythonFile = path.resolve(__dirname, "../python/models/nail/predict_nail.py");
+
 
     const py = spawn("python", [pythonFile, imagePath]);
 
