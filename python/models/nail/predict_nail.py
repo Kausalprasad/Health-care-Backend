@@ -25,7 +25,7 @@ with open(labels_path, "r") as f:
 # ---- Nail Recommendations ----
 recommendations = {
     "normal": {
-        "recommendedCosmetics": [
+        "recommended Cosmetics": [
             "Mild nail strengtheners and moisturizers with vitamins E & B5",
             "Acetone-free nail polish remover"
         ],
@@ -37,13 +37,13 @@ recommendations = {
         "associatedConditions": "Healthy nails indicate no disease"
     },
     "beau's line": {
-        "recommendedCosmetics": ["Cosmetic filling with gel nails for appearance"],
+        "recommended Cosmetics": ["Cosmetic filling with gel nails for appearance"],
         "homeRemedies": [
             "No specific home remedy; nails grow out over time",
             "Treat underlying causes (illness, chemotherapy, stress)"
         ],
-        "timeFrame": "Grows out as new nails regenerate, usually weeks to months",
-        "associatedDiseases": "Severe illness, trauma, chemotherapy, infections, stress"
+        "time Frame": "Grows out as new nails regenerate, usually weeks to months",
+        "associated Diseases": "Severe illness, trauma, chemotherapy, infections, stress"
     },
     "black line": {
         "recommendedCosmetics": ["No specific cosmetics; medical evaluation needed"],
@@ -52,51 +52,51 @@ recommendations = {
         "associatedDiseases": "Natural pigmentation, melanoma, trauma, medications, HIV, cancer"
     },
     "clubbing": {
-        "recommendedCosmetics": ["No cosmetic treatment; medical evaluation priority"],
+        "recommended Cosmetics": ["No cosmetic treatment; medical evaluation priority"],
         "homeRemedies": [
             "Address underlying disease (lung, heart, liver)",
             "Manage inflammation and circulation"
         ],
-        "timeFrame": "Depends on managing underlying cause",
-        "associatedDiseases": "Lung cancer, cystic fibrosis, heart disease, liver disease, IBD"
+        "time Frame": "Depends on managing underlying cause",
+        "associated Diseases": "Lung cancer, cystic fibrosis, heart disease, liver disease, IBD"
     },
     "muehrcke's lines": {
-        "recommendedCosmetics": ["None specific"],
-        "homeRemedies": ["Treat underlying cause like low albumin or liver disease"],
-        "timeFrame": "Lines fade once condition improves; variable",
-        "associatedDiseases": "Low albumin (liver/kidney disease, malnutrition, chemotherapy)"
+        "recommended Cosmetics": ["None specific"],
+        "home Remedies": ["Treat underlying cause like low albumin or liver disease"],
+        "time Frame": "Lines fade once condition improves; variable",
+        "associated Diseases": "Low albumin (liver/kidney disease, malnutrition, chemotherapy)"
     },
     "onycholysis": {
-        "recommendedCosmetics": ["Avoid nail polish and irritants until healed"],
-        "homeRemedies": [
+        "recommended Cosmetics": ["Avoid nail polish and irritants until healed"],
+        "home Remedies": [
             "Keep nails trimmed short",
             "Protect nails from trauma and moisture",
             "Treat fungal or other infections as needed"
         ],
-        "timeFrame": "Nail regrowth takes 4-6 months",
-        "associatedDiseases": "Thyroid disease, psoriasis, fungal infections, trauma, medication reactions"
+        "time Frame": "Nail regrowth takes 4-6 months",
+        "associated Diseases": "Thyroid disease, psoriasis, fungal infections, trauma, medication reactions"
     },
     "terry's nail": {
-        "recommendedCosmetics": ["Moisturizers for nails and cuticles"],
-        "homeRemedies": [
+        "recommended Cosmetics": ["Moisturizers for nails and cuticles"],
+        "home Remedies": [
             "Manage underlying diseases",
             "Maintain balanced diet and hydration"
         ],
-        "timeFrame": "Improvement with disease management; variable",
-        "associatedDiseases": "Liver disease, chronic kidney failure, heart failure, diabetes, aging"
+        "time Frame": "Improvement with disease management; variable",
+        "associated Diseases": "Liver disease, chronic kidney failure, heart failure, diabetes, aging"
     },
     "white spots": {
-        "recommendedCosmetics": ["Avoid nail polish overuse or harsh chemicals"],
-        "homeRemedies": [
+        "recommended Cosmetics": ["Avoid nail polish overuse or harsh chemicals"],
+        "home Remedies": [
             "Protect nails from trauma (e.g. manicures)",
             "Maintain balanced diet for mineral/vitamin intake"
         ],
-        "timeFrame": "Spots grow out with nail, weeks to months",
-        "associatedDiseases": "Nail injury, fungal infection, mineral deficiency, allergic reaction"
+        "time Frame": "Spots grow out with nail, weeks to months",
+        "associated Diseases": "Nail injury, fungal infection, mineral deficiency, allergic reaction"
     },
     "anemic": {
-        "recommendedCosmetics": ["Nail-strengthening and moisturizing products"],
-        "homeRemedies": [
+        "recommended Cosmetics": ["Nail-strengthening and moisturizing products"],
+        "home Remedies": [
             "Iron-rich diet, iron supplements after medical advice",
             "Treat root anemia cause"
         ],
