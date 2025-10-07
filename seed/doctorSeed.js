@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 const Doctor = require("../models/doctor");
 
-dotenv.config();
+const dotenv = require("dotenv");
+dotenv.config({ path: "../.env" });
 
 const sampleDoctors = [
   {
@@ -19,14 +19,15 @@ const sampleDoctors = [
     hospitalName: "Apollo Hospital",
     qualifications: ["MBBS", "MD Cardiology"],
     languages: ["Hindi", "English"],
-     availableSlots: ["9 AM", "10 AM", "11 AM", "2 PM", "3 PM", "4 PM"],
+    verified: true,
     schedule: [
-      { day: "monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "tuesday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "wednesday", startTime: "14:00", endTime: "17:00", isAvailable: true },
-      { day: "thursday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "friday", startTime: "09:00", endTime: "12:00", isAvailable: true }
-    ]
+      { day: "Monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Tuesday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Wednesday", startTime: "14:00", endTime: "17:00", isAvailable: true },
+      { day: "Thursday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Friday", startTime: "09:00", endTime: "12:00", isAvailable: true }
+    ],
+    calendar: []
   },
   {
     name: "Dr. Priya Singh",
@@ -42,14 +43,15 @@ const sampleDoctors = [
     hospitalName: "Skin Care Clinic",
     qualifications: ["MBBS", "MD Dermatology"],
     languages: ["Hindi", "English", "Punjabi"],
-    availableSlots: ["10:00-10:30","10:30-11:00","11:00-11:30","11:30-12:00","15:00-15:30","15:30-16:00","16:00-16:30","16:30-17:00"],
+    verified: true,
     schedule: [
-      { day: "monday", startTime: "10:00", endTime: "13:00", isAvailable: true },
-      { day: "tuesday", startTime: "10:00", endTime: "13:00", isAvailable: true },
-      { day: "thursday", startTime: "15:00", endTime: "18:00", isAvailable: true },
-      { day: "friday", startTime: "10:00", endTime: "13:00", isAvailable: true },
-      { day: "saturday", startTime: "09:00", endTime: "12:00", isAvailable: true }
-    ]
+      { day: "Monday", startTime: "10:00", endTime: "13:00", isAvailable: true },
+      { day: "Tuesday", startTime: "10:00", endTime: "13:00", isAvailable: true },
+      { day: "Thursday", startTime: "15:00", endTime: "18:00", isAvailable: true },
+      { day: "Friday", startTime: "10:00", endTime: "13:00", isAvailable: true },
+      { day: "Saturday", startTime: "09:00", endTime: "12:00", isAvailable: true }
+    ],
+    calendar: []
   },
   {
     name: "Dr. Ankit Verma",
@@ -65,12 +67,13 @@ const sampleDoctors = [
     hospitalName: "Neuro Clinic",
     qualifications: ["MBBS", "MD Neurology"],
     languages: ["Hindi", "English"],
-    availableSlots: ["09:00-09:30","09:30-10:00","10:00-10:30","11:00-11:30","14:00-14:30","14:30-15:00","15:00-15:30","15:30-16:00"],
+    verified: true,
     schedule: [
-      { day: "monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "wednesday", startTime: "14:00", endTime: "17:00", isAvailable: true },
-      { day: "friday", startTime: "09:00", endTime: "12:00", isAvailable: true }
-    ]
+      { day: "Monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Wednesday", startTime: "14:00", endTime: "17:00", isAvailable: true },
+      { day: "Friday", startTime: "09:00", endTime: "12:00", isAvailable: true }
+    ],
+    calendar: []
   },
   {
     name: "Dr. Meera Joshi",
@@ -86,12 +89,13 @@ const sampleDoctors = [
     hospitalName: "Child Care Hospital",
     qualifications: ["MBBS", "MD Pediatrics"],
     languages: ["Hindi", "English"],
-    availableSlots: ["09:00-09:30","09:30-10:00","10:00-10:30","10:30-11:00","13:00-13:30","13:30-14:00","14:00-14:30","14:30-15:00"],
+    verified: true,
     schedule: [
-      { day: "tuesday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "thursday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "saturday", startTime: "10:00", endTime: "13:00", isAvailable: true }
-    ]
+      { day: "Tuesday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Thursday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Saturday", startTime: "10:00", endTime: "13:00", isAvailable: true }
+    ],
+    calendar: []
   },
   {
     name: "Dr. Ravi Kapoor",
@@ -107,12 +111,13 @@ const sampleDoctors = [
     hospitalName: "Ortho Clinic",
     qualifications: ["MBBS", "MS Orthopedics"],
     languages: ["Hindi", "English"],
-    availableSlots: ["09:00-09:30","09:30-10:00","10:00-10:30","11:00-11:30","15:00-15:30","15:30-16:00","16:00-16:30","16:30-17:00"],
+    verified: true,
     schedule: [
-      { day: "monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "wednesday", startTime: "14:00", endTime: "17:00", isAvailable: true },
-      { day: "friday", startTime: "09:00", endTime: "12:00", isAvailable: true }
-    ]
+      { day: "Monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Wednesday", startTime: "14:00", endTime: "17:00", isAvailable: true },
+      { day: "Friday", startTime: "09:00", endTime: "12:00", isAvailable: true }
+    ],
+    calendar: []
   },
   {
     name: "Dr. Sneha Gupta",
@@ -128,12 +133,13 @@ const sampleDoctors = [
     hospitalName: "Women's Health Clinic",
     qualifications: ["MBBS", "MD Gynecology"],
     languages: ["Hindi", "English"],
-    availableSlots: ["09:00-09:30","09:30-10:00","10:00-10:30","10:30-11:00","13:00-13:30","13:30-14:00","14:00-14:30","14:30-15:00"],
+    verified: true,
     schedule: [
-      { day: "tuesday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "thursday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "saturday", startTime: "10:00", endTime: "13:00", isAvailable: true }
-    ]
+      { day: "Tuesday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Thursday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Saturday", startTime: "10:00", endTime: "13:00", isAvailable: true }
+    ],
+    calendar: []
   },
   {
     name: "Dr. Amit Malhotra",
@@ -149,12 +155,13 @@ const sampleDoctors = [
     hospitalName: "ENT Clinic",
     qualifications: ["MBBS", "MS ENT"],
     languages: ["Hindi", "English"],
-    availableSlots: ["09:00-09:30","09:30-10:00","10:00-10:30","11:00-11:30","14:00-14:30","14:30-15:00","15:00-15:30","15:30-16:00"],
+    verified: true,
     schedule: [
-      { day: "monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "wednesday", startTime: "14:00", endTime: "17:00", isAvailable: true },
-      { day: "friday", startTime: "09:00", endTime: "12:00", isAvailable: true }
-    ]
+      { day: "Monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Wednesday", startTime: "14:00", endTime: "17:00", isAvailable: true },
+      { day: "Friday", startTime: "09:00", endTime: "12:00", isAvailable: true }
+    ],
+    calendar: []
   },
   {
     name: "Dr. Kavita Mehra",
@@ -170,12 +177,13 @@ const sampleDoctors = [
     hospitalName: "Mental Health Clinic",
     qualifications: ["MBBS", "MD Psychiatry"],
     languages: ["Hindi", "English"],
-    availableSlots: ["10:00-10:30","10:30-11:00","11:00-11:30","11:30-12:00","15:00-15:30","15:30-16:00","16:00-16:30","16:30-17:00"],
+    verified: true,
     schedule: [
-      { day: "monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "thursday", startTime: "14:00", endTime: "17:00", isAvailable: true },
-      { day: "friday", startTime: "09:00", endTime: "12:00", isAvailable: true }
-    ]
+      { day: "Monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Thursday", startTime: "14:00", endTime: "17:00", isAvailable: true },
+      { day: "Friday", startTime: "09:00", endTime: "12:00", isAvailable: true }
+    ],
+    calendar: []
   },
   {
     name: "Dr. Rohan Khanna",
@@ -191,11 +199,12 @@ const sampleDoctors = [
     hospitalName: "Ortho Clinic",
     qualifications: ["MBBS", "MS Orthopedics"],
     languages: ["Hindi", "English"],
-    availableSlots: ["09:00-09:30","09:30-10:00","10:00-10:30","10:30-11:00","15:00-15:30","15:30-16:00","16:00-16:30","16:30-17:00"],
+    verified: true,
     schedule: [
-      { day: "monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "wednesday", startTime: "14:00", endTime: "17:00", isAvailable: true }
-    ]
+      { day: "Monday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Wednesday", startTime: "14:00", endTime: "17:00", isAvailable: true }
+    ],
+    calendar: []
   },
   {
     name: "Dr. Anjali Rao",
@@ -211,14 +220,14 @@ const sampleDoctors = [
     hospitalName: "Heart Clinic",
     qualifications: ["MBBS", "MD Cardiology"],
     languages: ["Hindi", "English"],
-    availableSlots: ["09:00-09:30","09:30-10:00","10:00-10:30","10:30-11:00","14:00-14:30","14:30-15:00","15:00-15:30","15:30-16:00"],
+    verified: true,
     schedule: [
-      { day: "tuesday", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { day: "thursday", startTime: "14:00", endTime: "17:00", isAvailable: true }
-    ]
+      { day: "Tuesday", startTime: "09:00", endTime: "12:00", isAvailable: true },
+      { day: "Thursday", startTime: "14:00", endTime: "17:00", isAvailable: true }
+    ],
+    calendar: []
   }
 ];
-
 
 const seedDoctors = async () => {
   try {

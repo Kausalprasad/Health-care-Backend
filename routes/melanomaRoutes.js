@@ -1,11 +1,9 @@
 const express = require("express");
+const { status } = require("../controllers/melanomaController");
+
 const router = express.Router();
-const multer = require("multer");
-const { predictVideo } = require("../controllers/melanomaController");
 
-const upload = multer({ dest: "uploads/" });
-
-// POST route to analyze uploaded video
-router.post("/video-predict", upload.single("video"), predictVideo);
+// Health check route
+router.get("/status", status);
 
 module.exports = router;

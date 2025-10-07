@@ -1,4 +1,6 @@
 const UserProfile = require('../models/UserProfile');
+const fs = require('fs');
+const path = require('path');
 
 // -------------------------
 // 1️⃣ Create or Get Profile
@@ -12,32 +14,57 @@ exports.createOrGetProfile = async (req, res) => {
     let profile = await UserProfile.findByFirebaseUID(uid);
 
     if (!profile) {
-      // Initialize minimal profile
+      // CREATE and SAVE minimal profile in database
       profile = new UserProfile({
         firebaseUID: uid,
         basicInfo: { fullName },
         contactInfo: { email }
       });
 
+      // SAVE TO DATABASE - ye missing tha!
+      await profile.save();
+
       return res.status(201).json({ 
         success: true,
-        message: 'Profile initialized. Please complete steps.',
-        data: null,
+        message: 'Profile created successfully. Please complete remaining steps.',
+        data: profile,  // profile data return kar rahe hain
         isNewProfile: true,
         needsCompletion: true,
-        nextStep: 1
+        nextStep: 1,
+        completionStatus: profile.profileCompletion
       });
+    }
+
+    // Check if profile is complete
+    const isComplete = profile.profileCompletion.completionPercentage === 100;
+    let nextStep = null;
+    
+    if (!profile.profileCompletion.step1Completed) {
+      nextStep = 1;
+    } else if (!profile.profileCompletion.step2Completed) {
+      nextStep = 2;
+    } else if (!profile.profileCompletion.step3Completed) {
+      nextStep = 3;
     }
 
     return res.json({
       success: true,
-      message: 'Profile retrieved successfully',
+      message: isComplete ? 'Profile is complete' : 'Profile found but incomplete',
       data: profile,
-      isNewProfile: false
+      isNewProfile: false,
+      needsCompletion: !isComplete,
+      nextStep: nextStep,
+      completionStatus: profile.profileCompletion,
+      isComplete: isComplete
     });
+
   } catch (err) {
     console.error('Profile error:', err);
-    return res.status(500).json({ success: false, error: 'Server error', message: err.message });
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Server error', 
+      message: err.message 
+    });
   }
 };
 
@@ -287,6 +314,42 @@ exports.createProfileStep3 = async (req, res) => {
     });
   }
 };
+exports.skipProfileStep3 = async (req, res) => {
+  try {
+    console.log('=== SKIP STEP3 CALLED ===');
+    const uid = req.user.uid;
+    const profile = await UserProfile.findByFirebaseUID(uid);
+    
+    console.log('Profile before skip:', profile?.profileCompletion);
+    
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        error: 'Profile not found'
+      });
+    }
+
+    profile.profileCompletion.step3Completed = true;
+    profile.profileCompletion.completionPercentage = 100;
+    
+    await profile.save();
+    
+    console.log('Profile after skip:', profile.profileCompletion);
+
+    return res.json({
+      success: true,
+      message: 'Profile setup completed (Step 3 skipped)',
+      data: profile,
+      isComplete: true
+    });
+  } catch (err) {
+    console.error('Skip Step 3 error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Server error'
+    });
+  }
+};
 
 // -------------------------
 // 8️⃣ Get Profile Status
@@ -328,5 +391,127 @@ exports.viewProfile = async (req, res) => {
     return res.status(500).json({ success: false, error: 'Server error' });
   }
 };
+exports.uploadProfilePhoto = async (req, res) => {
+  try {
+    const uid = req.user.uid;
+    
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No file uploaded',
+        message: 'Please select a profile photo'
+      });
+    }
+
+    // Find user profile
+    const profile = await UserProfile.findByFirebaseUID(uid);
+    if (!profile) {
+      // Delete uploaded file if profile not found
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({
+        success: false,
+        error: 'Profile not found',
+        message: 'Please create your profile first'
+      });
+    }
+
+    // Delete old profile photo if exists
+    if (profile.basicInfo.profilePhoto && profile.basicInfo.profilePhoto.filename) {
+      const oldPhotoPath = path.join(__dirname, '../uploads/profile-photos', profile.basicInfo.profilePhoto.filename);
+      if (fs.existsSync(oldPhotoPath)) {
+        try {
+          fs.unlinkSync(oldPhotoPath);
+          console.log('Old profile photo deleted:', profile.basicInfo.profilePhoto.filename);
+        } catch (err) {
+          console.error('Error deleting old photo:', err);
+        }
+      }
+    }
+
+    // Update profile with new photo
+    profile.basicInfo.profilePhoto = {
+      url: `/api/profile/photo/${req.file.filename}`,
+      filename: req.file.filename,
+      uploadedAt: new Date()
+    };
+
+    await profile.save();
+
+    return res.json({
+      success: true,
+      message: 'Profile photo uploaded successfully',
+      data: {
+        profilePhoto: profile.basicInfo.profilePhoto
+      }
+    });
+
+  } catch (err) {
+    // Delete uploaded file on error
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    console.error('Profile photo upload error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Server error',
+      message: 'Unable to upload profile photo'
+    });
+  }
+};
+
+// -------------------------
+// 🔟 Delete Profile Photo
+// -------------------------
+exports.deleteProfilePhoto = async (req, res) => {
+  try {
+    const uid = req.user.uid;
+
+    const profile = await UserProfile.findByFirebaseUID(uid);
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        error: 'Profile not found'
+      });
+    }
+
+    if (!profile.basicInfo.profilePhoto || !profile.basicInfo.profilePhoto.filename) {
+      return res.status(400).json({
+        success: false,
+        error: 'No profile photo found'
+      });
+    }
+
+    // Delete file from filesystem
+    const photoPath = path.join(__dirname, '../uploads/profile-photos', profile.basicInfo.profilePhoto.filename);
+    if (fs.existsSync(photoPath)) {
+      try {
+        fs.unlinkSync(photoPath);
+        console.log('Profile photo deleted:', profile.basicInfo.profilePhoto.filename);
+      } catch (err) {
+        console.error('Error deleting photo file:', err);
+      }
+    }
+
+    // Remove photo from profile
+    profile.basicInfo.profilePhoto = undefined;
+    await profile.save();
+
+    return res.json({
+      success: true,
+      message: 'Profile photo deleted successfully'
+    });
+
+  } catch (err) {
+    console.error('Profile photo delete error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Server error',
+      message: 'Unable to delete profile photo'
+    });
+  }
+};
+
+console.log('✅ Profile photo controller functions added successfully');
 
 console.log('✅ All UserProfile controller functions loaded successfully');
