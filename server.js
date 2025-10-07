@@ -23,6 +23,13 @@ const nailRoutes = require("./routes/nailRoutes");
 const userProfileRoutes=require('./routes/userProfileRoutes')
 const webhookRoutes = require("./routes/webhook");
 const startWatcher = require("./services/watcher");
+const moodRoutes= require('./routes/moodRoutes')
+const labRoutes = require("./routes/labRoutes");
+const preventiveHealthRoutes = require("./routes/preventiveHealthRoutes");
+const insuranceRoutes = require("./routes/insuranceRoutes");
+const dietRoutes = require("./routes/dietRoutes");
+const patientRoutes = require("./routes/patientRoutes");
+// const xrayRoutes = require("./routes/xrayRoutes");
 
 
 
@@ -63,6 +70,15 @@ app.use("/api/hair", hairRoutes);
 app.use("/api/nail", nailRoutes);
 app.use('/api',userProfileRoutes);
 app.use("/webhook", webhookRoutes);
+app.use("/moods", moodRoutes);
+app.use("/api/lab", labRoutes);
+app.use("/api/preventive-health", preventiveHealthRoutes);
+app.use("/api/insurance", insuranceRoutes);
+app.use("/api", dietRoutes);
+app.use("/api/patients", patientRoutes);
+// app.use("/api/xray", xrayRoutes);
+
+
 connectDB().then(() => {
   startWatcher(); // ✅ MongoDB watcher start
 });

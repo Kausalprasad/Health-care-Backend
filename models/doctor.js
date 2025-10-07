@@ -4,7 +4,7 @@ const doctorSchema = new mongoose.Schema({
   name: { type: String, required: true },
   specialization: { type: String, required: true },
   experience: { type: Number, required: true },
-  availableSlots: [{ type: String }], // Format: "YYYY-MM-DD HH:mm-HH:mm"
+  availableSlots: [{ type: String }], // optional legacy format
   fees: { type: Number, default: 500 },
   location: { type: String, default: "Delhi" },
   rating: { type: Number, default: 4.0, min: 1, max: 5 },
@@ -16,11 +16,23 @@ const doctorSchema = new mongoose.Schema({
   qualifications: [{ type: String }],
   languages: [{ type: String }],
   verified: { type: Boolean, default: true },
+
+  // 📅 Weekly recurring schedule
   schedule: [
     {
-      day: { type: String },
-      startTime: { type: String },
-      endTime: { type: String },
+      day: { type: String }, // "Monday"
+      startTime: { type: String }, // "09:00"
+      endTime: { type: String },   // "17:00"
+      isAvailable: { type: Boolean, default: true }
+    }
+  ],
+
+  // 📅 Extra calendar events (doctor vacations / blocked dates)
+  calendar: [
+    {
+      date: { type: Date, required: true },
+      startTime: { type: String, required: true },
+      endTime: { type: String, required: true },
       isAvailable: { type: Boolean, default: true }
     }
   ]

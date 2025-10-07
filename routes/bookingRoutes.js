@@ -1,6 +1,8 @@
 // routes/bookingRoutes.js
 const express = require("express");
 const router = express.Router();
+const authMiddleware = require('../middlewares/authMiddleware');
+
 const {
   bookAppointment,
   getBookings,
@@ -8,9 +10,10 @@ const {
   rescheduleBooking
 } = require("../controllers/bookingController");
 
-router.post("/", bookAppointment);                 // Book new appointment
-router.get("/", getBookings);                      // Get bookings
-router.delete("/:bookingId", cancelBooking);       // Cancel booking
-router.put("/:bookingId/reschedule", rescheduleBooking); // Reschedule booking
+// ✅ All booking routes require authentication
+router.post("/", authMiddleware, bookAppointment);                 // Book new appointment
+router.get("/", authMiddleware, getBookings);                      // Get bookings
+router.delete("/:bookingId", authMiddleware, cancelBooking);       // Cancel booking
+router.put("/:bookingId/reschedule", authMiddleware, rescheduleBooking); // Reschedule booking
 
 module.exports = router;

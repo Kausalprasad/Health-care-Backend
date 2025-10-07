@@ -97,7 +97,8 @@ const getSlotsByDate = async (req, res) => {
     const date = req.query.date; // YYYY-MM-DD
     if (!date) return res.status(400).json({ message: "Date is required" });
 
-    const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    // Get day of week in same format as schema ("Monday", "Tuesday")
+    const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
     const scheduleForDay = doctor.schedule.find(s => s.day === dayOfWeek && s.isAvailable);
 
     let slots = [];
@@ -106,20 +107,20 @@ const getSlotsByDate = async (req, res) => {
       const [endHour, endMin] = scheduleForDay.endTime.split(":").map(Number);
 
       while (hour < endHour || (hour === endHour && min < endMin)) {
-        const slotStart = `${hour.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}`;
+        const slotStart = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
         min += 30;
         if (min >= 60) { hour += 1; min -= 60; }
-        const slotEnd = `${hour.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}`;
+        const slotEnd = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
         slots.push(`${slotStart}-${slotEnd}`);
       }
     } else {
-      // Agar schedule nahi mila, fallback to default slots
       slots = doctor.availableSlots || [];
     }
 
-    // Remove already booked slots
-    const bookings = await Booking.find({ doctorId: doctor._id, appointmentDate: date });
-    const bookedSlots = bookings.map(b => b.slot);
+    // Fetch booked slots for that doctor on that date
+    const bookings = await Booking.find({ doctorId: doctor._id, date: new Date(date) });
+
+    const bookedSlots = bookings.map(b => `${b.startTime}-${b.endTime}`);
     slots = slots.filter(s => !bookedSlots.includes(s));
 
     res.json({ availableSlots: slots });
@@ -129,5 +130,6 @@ const getSlotsByDate = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 module.exports = { getDoctors, getDoctorById, searchDoctors, getSpecializations, getLocations, getSlotsByDate };
