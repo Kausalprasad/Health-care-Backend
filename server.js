@@ -30,6 +30,7 @@ const insuranceRoutes = require("./routes/insuranceRoutes");
 const dietRoutes = require("./routes/dietRoutes");
 const patientRoutes = require("./routes/patientRoutes");
 // const xrayRoutes = require("./routes/xrayRoutes");
+const voiceRoutes = require("./routes/voiceRoutes");
 
 
 
@@ -77,6 +78,7 @@ app.use("/api/insurance", insuranceRoutes);
 app.use("/api", dietRoutes);
 app.use("/api/patients", patientRoutes);
 // app.use("/api/xray", xrayRoutes);
+app.use("/api/voice", voiceRoutes);
 
 
 connectDB().then(() => {
