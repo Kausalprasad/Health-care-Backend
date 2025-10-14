@@ -31,6 +31,8 @@ const dietRoutes = require("./routes/dietRoutes");
 const patientRoutes = require("./routes/patientRoutes");
 // const xrayRoutes = require("./routes/xrayRoutes");
 const voiceRoutes = require("./routes/voiceRoutes");
+const pregnancyRoutes = require("./routes/pregnancyRoutes");
+const babyRoutes = require("./routes/babyRoutes");
 
 
 
@@ -79,7 +81,8 @@ app.use("/api", dietRoutes);
 app.use("/api/patients", patientRoutes);
 // app.use("/api/xray", xrayRoutes);
 app.use("/api/voice", voiceRoutes);
-
+app.use("/api/pregnancy", pregnancyRoutes);
+app.use("/api/baby", babyRoutes);
 
 connectDB().then(() => {
   startWatcher(); // ✅ MongoDB watcher start
