@@ -1,98 +1,81 @@
-// backend/controllers/dietController.js
 const { spawn } = require("child_process");
 const path = require("path");
+const Diet = require("../models/diet");
 
+// Generate Diet Plan
 const getDietPlan = async (req, res) => {
   try {
-    console.log("[DietController] Enhanced API hit");
-    console.log("[DietController] Request body:", JSON.stringify(req.body, null, 2));
+    console.log("[DietController] API hit by user:", req.user.uid);
 
-    // Validate required fields
     const requiredFields = ["height", "weight", "sex", "region", "goal", "food_preference", "activity_level"];
-    const missingFields = requiredFields.filter(field => !req.body[field]);
-    
-    if (missingFields.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: `Missing required fields: ${missingFields.join(", ")}`
-      });
-    }
+    const missing = requiredFields.filter(f => !req.body[f]);
+    if (missing.length > 0)
+      return res.status(400).json({ success: false, error: `Missing: ${missing.join(", ")}` });
 
     const pythonPath = path.join(__dirname, "../python/models/diet/diet.py");
-    console.log("[DietController] Python script path:", pythonPath);
-
     const py = spawn("python", [pythonPath]);
 
-    let result = "";
-    let errorMsg = "";
+    let result = "", errorMsg = "";
 
-    // Write input data to Python script
     py.stdin.write(JSON.stringify(req.body));
     py.stdin.end();
 
-    py.stdout.on("data", (data) => {
-      result += data.toString();
-    });
+    py.stdout.on("data", (data) => (result += data.toString()));
+    py.stderr.on("data", (data) => (errorMsg += data.toString()));
 
-    py.stderr.on("data", (data) => {
-      errorMsg += data.toString();
-      console.error("[DietController] Python stderr:", data.toString());
-    });
-
-    py.on("close", (code) => {
-      console.log(`[DietController] Python process exited with code ${code}`);
-      
+    py.on("close", async (code) => {
       if (code !== 0) {
-        console.error("[DietController] Python Error Output:", errorMsg);
-        return res.status(500).json({
-          success: false,
-          error: "Python script execution failed",
-          details: errorMsg
-        });
+        return res.status(500).json({ success: false, error: "Python failed", details: errorMsg });
       }
 
       try {
         const parsed = JSON.parse(result);
-        
-        if (parsed.success) {
-          console.log("[DietController] ✅ Diet plan generated successfully");
-          console.log("[DietController] Profile BMI:", parsed.user_profile?.bmi);
-          console.log("[DietController] Target Calories:", parsed.user_profile?.target_calories);
-          console.log("[DietController] Medical Conditions:", parsed.user_profile?.medical_conditions);
-          console.log("[DietController] Allergies:", parsed.user_profile?.allergies);
-        } else {
-          console.error("[DietController] ❌ Diet generation failed:", parsed.error);
-        }
+        if (!parsed.success) return res.status(500).json(parsed);
 
-        res.json(parsed);
-      } catch (parseError) {
-        console.error("[DietController] JSON Parse Error:", parseError.message);
-        console.error("[DietController] Raw output:", result);
-        res.status(500).json({
-          success: false,
-          error: "Failed to parse Python response",
-          raw: result.substring(0, 500) // Send first 500 chars for debugging
+        // Save to DB (User-Specific)
+        const savedDiet = await Diet.create({
+          userId: req.user.uid,
+          goal: req.body.goal, // Store goal directly from request
+          ...parsed,
         });
+
+        res.status(200).json({
+          success: true,
+          message: "Diet plan generated & saved successfully",
+          diet: savedDiet,
+        });
+      } catch (err) {
+        console.error("[DietController] JSON parse error:", err.message);
+        res.status(500).json({ success: false, error: "Failed to parse or save diet" });
       }
     });
-
-    py.on("error", (error) => {
-      console.error("[DietController] Spawn error:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to start Python process",
-        details: error.message
-      });
-    });
-
-  } catch (error) {
-    console.error("[DietController] Catch block error:", error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+  } catch (err) {
+    console.error("[DietController] Catch error:", err.message);
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
-module.exports = { getDietPlan };
+// Fetch all user's diet plans
+const getUserDiets = async (req, res) => {
+  try {
+    const diets = await Diet.find({ userId: req.user.uid }).sort({ createdAt: -1 });
+    res.json({ success: true, diets });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+// Delete a diet plan
+const deleteDiet = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const diet = await Diet.findOneAndDelete({ _id: id, userId: req.user.uid });
+    if (!diet) return res.status(404).json({ success: false, error: "Diet not found or not authorized" });
+
+    res.json({ success: true, message: "Diet deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+module.exports = { getDietPlan, getUserDiets, deleteDiet };
