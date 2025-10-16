@@ -1,9 +1,15 @@
-// backend/routes/insuranceRoutes.js
+// routes/insuranceRoutes.js
 const express = require("express");
 const router = express.Router();
-const insuranceController = require("../controllers/insuranceController");
+const {
+  predictInsuranceClaim,
+  generatePatientBill
+} = require("../controllers/insuranceController");
 
-router.post("/check-coverage", insuranceController.checkCoverage);
-router.post("/recommend", insuranceController.recommendPlans);
+// POST -> Predict claim amount
+router.post("/predict", predictInsuranceClaim);
+
+// POST -> Generate patient bill
+router.post("/bill", generatePatientBill);
 
 module.exports = router;
