@@ -1,151 +1,109 @@
-import sys, json
-import pandas as pd
-import numpy as np
+import json, sys
+from datetime import datetime
 import random
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.metrics import accuracy_score
 
+# ------------------- CLAIM PREDICTION FUNCTION -------------------
+def predict_insurance_claim(operation_name, operation_cost, insurance_company,
+                           policy_type, patient_age, pre_existing_conditions=0,
+                           emergency_case=0):
+    try:
+        base_approval = random.uniform(0.65, 0.9)
+        condition_penalty = 1 - (pre_existing_conditions * 0.05)
+        emergency_penalty = 0.95 if emergency_case else 1
+        age_penalty = 0.95 if patient_age > 60 else 1
 
-# ---------------------------
-# Insurance Plans Data
-# ---------------------------
-insurance_plans_data = [
-    {
-        "provider_name": "UnitedHealthcare",
-        "plan_id": "UHC-HMO-1001",
-        "plan_type": "HMO",
-        "coverage": {
-            "conditions_covered": ["diabetes", "hypertension", "asthma"],
-            "general_consultation": True,
-            "specialist_consultation": True,
-            "laboratory_tests": ["blood_test", "cholesterol_test", "blood_sugar"],
-            "imaging": ["xray", "ultrasound"],
-            "hospitalization": True,
-            "medications": ["generic_drugs", "brand_drugs"],
-            "pre_existing_conditions": False
-        },
-        "claim_rules": {
-            "max_coverage_amount": 50000,
-            "co_pay_percent": 20,
-            "deductible_amount": 1500
+        claim_approved = operation_cost * base_approval * condition_penalty * emergency_penalty * age_penalty
+        claim_approved = min(claim_approved, operation_cost)
+        patient_payment = operation_cost - claim_approved
+        approval_percentage = round((claim_approved / operation_cost) * 100, 2)
+
+        return {
+            "status": "success",
+            "type": "prediction",
+            "timestamp": datetime.now().isoformat(),
+            "operation_name": operation_name,
+            "operation_cost": round(operation_cost, 2),
+            "insurance_company": insurance_company,
+            "policy_type": policy_type,
+            "patient_age": patient_age,
+            "pre_existing_conditions": pre_existing_conditions,
+            "emergency_case": emergency_case,
+            "claim_approved": round(claim_approved, 2),
+            "patient_payment": round(patient_payment, 2),
+            "approval_percentage": approval_percentage
         }
-    },
-    {
-        "provider_name": "UnitedHealthcare",
-        "plan_id": "UHC-PPO-1002",
-        "plan_type": "PPO",
-        "coverage": {
-            "conditions_covered": ["cancer", "arthritis", "depression", "obesity"],
-            "general_consultation": True,
-            "specialist_consultation": True,
-            "laboratory_tests": ["blood_test", "genetic_test", "vitamin_deficiency_test"],
-            "imaging": ["mri", "ct_scan"],
-            "hospitalization": True,
-            "medications": ["generic_drugs", "brand_drugs", "specialty_drugs"],
-            "pre_existing_conditions": True
-        },
-        "claim_rules": {
-            "max_coverage_amount": 120000,
-            "co_pay_percent": 15,
-            "deductible_amount": 1000
+    except Exception as e:
+        return {"status": "error", "error_message": str(e)}
+
+
+# ------------------- BILL GENERATION FUNCTION -------------------
+def generate_patient_bill(patient_name, operation_name, operation_cost,
+                          insurance_company, policy_type, claim_approved):
+    try:
+        total_bill = round(operation_cost * 1.15 + 7000, 2)
+        patient_must_pay = round(total_bill - claim_approved, 2)
+
+        return {
+            "status": "success",
+            "type": "bill",
+            "bill_number": f"BILL{random.randint(10000, 99999)}",
+            "bill_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "patient_info": {
+                "name": patient_name,
+                "hospital": random.choice(["Apollo", "Fortis", "AIIMS", "Max", "Manipal"]),
+                "operation": operation_name
+            },
+            "cost_breakdown": {
+                "operation_cost": operation_cost,
+                "hospital_charges": round(operation_cost * 0.1, 2),
+                "medicine_cost": round(operation_cost * 0.05, 2),
+                "consultation_fee": 2000,
+                "room_charges": 5000,
+                "total_bill": total_bill
+            },
+            "insurance_claim": {
+                "claim_approved": claim_approved,
+                "claim_rejected": round(operation_cost - claim_approved, 2),
+                "approval_percentage": round((claim_approved / operation_cost) * 100, 2)
+            },
+            "payment_summary": {
+                "total_bill_amount": total_bill,
+                "insurance_covers": claim_approved,
+                "patient_must_pay": patient_must_pay
+            }
         }
-    }
-]
+    except Exception as e:
+        return {"status": "error", "error_message": str(e)}
 
-# ---------------------------
-# Process Data
-# ---------------------------
-def process_insurance_data(insurance_data):
-    processed_plans = []
-    for plan in insurance_data:
-        processed_plans.append({
-            "provider_name": plan["provider_name"],
-            "plan_id": plan["plan_id"],
-            "plan_type": plan["plan_type"],
-            "general_consultation": plan["coverage"]["general_consultation"],
-            "specialist_consultation": plan["coverage"]["specialist_consultation"],
-            "hospitalization": plan["coverage"]["hospitalization"],
-            "pre_existing_conditions": plan["coverage"]["pre_existing_conditions"],
-            "max_coverage_amount": plan["claim_rules"]["max_coverage_amount"],
-            "co_pay_percent": plan["claim_rules"]["co_pay_percent"],
-            "deductible_amount": plan["claim_rules"]["deductible_amount"],
-            "conditions_covered": plan["coverage"]["conditions_covered"],
-            "laboratory_tests": plan["coverage"]["laboratory_tests"],
-            "imaging_types": plan["coverage"]["imaging"],
-            "medications": plan["coverage"]["medications"]
-        })
-    return pd.DataFrame(processed_plans)
 
-plans_df = process_insurance_data(insurance_plans_data)
-
-# ---------------------------
-# Rule-based functions
-# ---------------------------
-def check_procedure_coverage(patient, plan_data, procedure):
-    if patient.get("current_insurance_plan") is None:
-        return False, "No current insurance plan"
-    current_plan = plan_data[plan_data["plan_id"] == patient["current_insurance_plan"]]
-    if current_plan.empty:
-        return False, "Current plan not found"
-    plan = current_plan.iloc[0]
-    covered_procedures = plan["laboratory_tests"] + plan["imaging_types"]
-    return (procedure in covered_procedures,
-            f"{'Covered' if procedure in covered_procedures else 'Not covered'} under {plan['plan_type']}")
-
-def recommend_insurance_plans(patient, plan_data, procedure, top_n=3):
-    recs = []
-    for _, plan in plan_data.iterrows():
-        score, reasons = 0, []
-        covered_procedures = plan["laboratory_tests"] + plan["imaging_types"]
-        if procedure in covered_procedures:
-            score += 40
-            reasons.append(f"Covers {procedure}")
-        if patient["has_pre_existing"] and plan["pre_existing_conditions"]:
-            score += 25
-            reasons.append("Accepts pre-existing conditions")
-        if patient["needs_specialist"] and plan["specialist_consultation"]:
-            score += 15
-            reasons.append("Specialist consultation available")
-        if plan["co_pay_percent"] <= patient["budget_max_copay"]:
-            score += 10
-            reasons.append("Copay affordable")
-        if plan["deductible_amount"] <= patient["budget_max_deductible"]:
-            score += 10
-            reasons.append("Deductible affordable")
-        recs.append({
-            "plan_id": plan["plan_id"],
-            "provider_name": plan["provider_name"],
-            "plan_type": plan["plan_type"],
-            "score": score,
-            "max_coverage": plan["max_coverage_amount"],
-            "copay_percent": plan["co_pay_percent"],
-            "deductible": plan["deductible_amount"],
-            "reasons": reasons
-        })
-    return sorted(recs, key=lambda x: x["score"], reverse=True)[:top_n]
-
-# ---------------------------
-# CLI entrypoint
-# ---------------------------
+# ------------------- MAIN ENTRY -------------------
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print(json.dumps({"error": "Invalid arguments"}))
-        sys.exit(1)
+    try:
+        mode = sys.argv[1]  # "predict" or "bill"
+        data = json.loads(sys.argv[2])
 
-    command = sys.argv[1]
-    patient = json.loads(sys.argv[2])
-    procedure = patient.get("required_procedure")
+        if mode == "predict":
+            result = predict_insurance_claim(
+                operation_name=data.get("operation_name"),
+                operation_cost=float(data.get("operation_cost")),
+                insurance_company=data.get("insurance_company"),
+                policy_type=data.get("policy_type"),
+                patient_age=int(data.get("patient_age")),
+                pre_existing_conditions=int(data.get("pre_existing_conditions", 0)),
+                emergency_case=int(data.get("emergency_case", 0))
+            )
+        elif mode == "bill":
+            result = generate_patient_bill(
+                patient_name=data.get("patient_name", "Unknown"),
+                operation_name=data.get("operation_name"),
+                operation_cost=float(data.get("operation_cost")),
+                insurance_company=data.get("insurance_company"),
+                policy_type=data.get("policy_type"),
+                claim_approved=float(data.get("claim_approved", 0))
+            )
+        else:
+            result = {"status": "error", "error_message": "Invalid mode argument"}
 
-    if command == "check":
-        covered, msg = check_procedure_coverage(patient, plans_df, procedure)
-        print(json.dumps({"covered": covered, "message": msg}))
-
-    elif command == "recommend":
-        recs = recommend_insurance_plans(patient, plans_df, procedure, top_n=3)
-        print(json.dumps(recs, indent=2))
-
-    else:
-        print(json.dumps({"error": "Unknown command"}))
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({"status": "error", "error_message": str(e)}))
