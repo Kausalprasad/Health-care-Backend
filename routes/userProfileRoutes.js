@@ -72,6 +72,7 @@ if (controller.createProfileStep3) router.post('/profile/step3', authMiddleware,
 // -------------------------
 if (controller.getProfileStatus) router.get('/profile/status', authMiddleware, controller.getProfileStatus);
 if (controller.viewProfile) router.get('/profile/view', authMiddleware, controller.viewProfile);
+router.delete('/profile/delete', authMiddleware, controller.deleteProfile);
 
 // -------------------------
 // SERVE UPLOADED IMAGES
