@@ -515,3 +515,139 @@ exports.deleteProfilePhoto = async (req, res) => {
 console.log('✅ Profile photo controller functions added successfully');
 
 console.log('✅ All UserProfile controller functions loaded successfully');
+// exports.deleteProfile = async (req, res) => {
+//   try {
+//     const uid = req.user.uid;
+//     const { confirmDelete } = req.body;
+
+//     // Check if user wants to confirm deletion
+//     if (!confirmDelete) {
+//       return res.status(400).json({
+//         success: false,
+//         error: 'Confirmation required',
+//         message: 'Please confirm profile deletion by sending confirmDelete: true'
+//       });
+//     }
+
+//     // Find user profile
+//     const profile = await UserProfile.findByFirebaseUID(uid);
+//     if (!profile) {
+//       return res.status(404).json({
+//         success: false,
+//         error: 'Profile not found',
+//         message: 'No profile exists to delete'
+//       });
+//     }
+
+//     // Delete profile photo from filesystem if exists
+//     if (profile.basicInfo.profilePhoto && profile.basicInfo.profilePhoto.filename) {
+//       const photoPath = path.join(__dirname, '../uploads/profile-photos', profile.basicInfo.profilePhoto.filename);
+//       if (fs.existsSync(photoPath)) {
+//         try {
+//           fs.unlinkSync(photoPath);
+//           console.log('Profile photo deleted during profile deletion:', profile.basicInfo.profilePhoto.filename);
+//         } catch (err) {
+//           console.error('Error deleting photo file:', err);
+//         }
+//       }
+//     }
+
+//     // Delete profile from database
+//     await UserProfile.deleteOne({ firebaseUID: uid });
+
+//     return res.json({
+//       success: true,
+//       message: 'Profile deleted successfully',
+//       data: {
+//         deletedAt: new Date(),
+//         profileId: profile._id
+//       }
+//     });
+
+//   } catch (err) {
+//     console.error('Profile deletion error:', err);
+//     return res.status(500).json({
+//       success: false,
+//       error: 'Server error',
+//       message: 'Unable to delete profile'
+//     });
+//   }
+// };
+
+// console.log('✅ All UserProfile controller functions loaded successfully');
+exports.deleteProfile = async (req, res) => {
+  try {
+    const uid = req.user.uid;
+    const { confirmDelete } = req.body;
+
+    // Check if user wants to confirm deletion
+    if (!confirmDelete) {
+      return res.status(400).json({
+        success: false,
+        error: 'Confirmation required',
+        message: 'Please confirm account deletion by sending confirmDelete: true'
+      });
+    }
+
+    // Find user profile
+    const profile = await UserProfile.findByFirebaseUID(uid);
+    
+    // Delete profile photo from filesystem if exists
+    if (profile && profile.basicInfo.profilePhoto && profile.basicInfo.profilePhoto.filename) {
+      const photoPath = path.join(__dirname, '../uploads/profile-photos', profile.basicInfo.profilePhoto.filename);
+      if (fs.existsSync(photoPath)) {
+        try {
+          fs.unlinkSync(photoPath);
+          console.log('✅ Profile photo deleted:', profile.basicInfo.profilePhoto.filename);
+        } catch (err) {
+          console.error('❌ Error deleting photo file:', err);
+        }
+      }
+    }
+
+    // Delete profile from database
+    if (profile) {
+      await UserProfile.deleteOne({ firebaseUID: uid });
+      console.log('✅ UserProfile deleted from database for UID:', uid);
+    }
+
+    // 🔥 DELETE FIREBASE USER ACCOUNT
+    try {
+      const admin = require('firebase-admin');
+      await admin.auth().deleteUser(uid);
+      console.log('✅ Firebase user account deleted for UID:', uid);
+    } catch (firebaseError) {
+      console.error('❌ Firebase user deletion error:', firebaseError);
+      // Continue even if Firebase deletion fails
+      return res.status(500).json({
+        success: false,
+        error: 'Firebase deletion failed',
+        message: 'Unable to delete Firebase account. Please contact support.'
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Account deleted successfully',
+      data: {
+        deletedAt: new Date(),
+        uid: uid,
+        deletedItems: {
+          profile: !!profile,
+          firebaseAccount: true,
+          profilePhoto: !!(profile && profile.basicInfo.profilePhoto)
+        }
+      }
+    });
+
+  } catch (err) {
+    console.error('❌ Complete account deletion error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Server error',
+      message: 'Unable to delete account'
+    });
+  }
+};
+
+console.log('✅ All UserProfile controller functions loaded successfully');
