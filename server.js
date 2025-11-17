@@ -34,6 +34,7 @@ const voiceRoutes = require("./routes/voiceRoutes");
 const pregnancyRoutes = require("./routes/pregnancyRoutes");
 const babyRoutes = require("./routes/babyRoutes");
 const riskRoutes = require("./routes/riskRoutes");
+const prescriptionnRoutes = require("./routes/prescriptionnRoutes");
 
 
 
@@ -85,6 +86,8 @@ app.use("/api/voice", voiceRoutes);
 app.use("/api/pregnancy", pregnancyRoutes);
 app.use("/api/baby", babyRoutes);
 app.use("/api", riskRoutes);
+app.use("/api/prescriptionns", prescriptionnRoutes);
+
 connectDB().then(() => {
   startWatcher(); // ✅ MongoDB watcher start
 });
