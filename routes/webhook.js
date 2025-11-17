@@ -18,22 +18,25 @@ router.get("/doctors", async (req, res) => {
 // 🔹 POST a new booking
 router.post("/bookings", async (req, res) => {
   try {
-    const { doctorId, patientName, patientEmail, slot } = req.body;
+    const { doctorId, patientName, patientEmail, patientId, date, startTime, endTime } = req.body;
 
-    // doctor ka record nikalna
+    // doctor fetch
     const doctor = await Doctor.findById(doctorId);
     if (!doctor) {
       return res.status(404).json({ success: false, message: "Doctor not found" });
     }
 
-    // booking banani hai doctor ki details copy karke
+    // schema ke hisaab se booking create
     const booking = new Booking({
-      doctorId: doctor._id,
+      doctorId,
+      patientId,
       patientName,
       patientEmail,
-      hospitalName: doctor.hospitalName || "N/A",
+      hospitalName: doctor.hospitalName,
       fees: doctor.fees,
-      slot
+      date,
+      startTime,
+      endTime
     });
 
     await booking.save();
